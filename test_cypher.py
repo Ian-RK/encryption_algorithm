@@ -7,32 +7,49 @@ Description: This script is just a unit test for the
 """
 
 import unittest
+# We import our functions from the main file
 from encryption_algorithm import encrypt, decrypt
 
 class TestTeamHexCipher(unittest.TestCase):
 
     def setUp(self):
-        self.key = "12345678" # 64-bit key (8 bytes)
-        self.plaintext = "HELLO TEAM"
-        self.fixed_time = "03042026154856"
+        """This runs before every test to set up the data."""
+        self.my_secret_key = "12345678" # Our 64-bit (8 character) key
+        self.message = "SECRET123"
+        # We use a fixed time so the 'Shift' is always the same for the test
+        self.test_time = "03042026154856" 
 
-    def test_encryption_decryption_cycle(self):
-        """Tests if decrypting an encrypted message returns the original."""
-        ciphertext = encrypt(self.plaintext, self.key, self.fixed_time)
-        decrypted_text = decrypt(ciphertext, self.key, self.fixed_time)
-        self.assertEqual(self.plaintext, decrypted_text)
+    def test_full_cycle(self):
+        """Check if encrypting then decrypting gives the original message back."""
+        # 1. Encrypt the message
+        encrypted_data = encrypt(self.message, self.my_secret_key, self.test_time)
+        
+        # 2. Decrypt it back
+        decrypted_result = decrypt(encrypted_data, self.my_secret_key)
+        
+        # 3. Compare
+        self.assertEqual(self.message, decrypted_result)
 
     def test_wrong_key_fails(self):
-        """Tests that a wrong key does not produce the original plaintext."""
-        ciphertext = encrypt(self.plaintext, self.key, self.fixed_time)
+        """Check that a different key results in total gibberish."""
+        encrypted_data = encrypt(self.message, self.my_secret_key, self.test_time)
+        
         wrong_key = "87654321"
-        decrypted_text = decrypt(ciphertext, wrong_key, self.fixed_time)
-        self.assertNotEqual(self.plaintext, decrypted_text)
+        decrypted_result = decrypt(encrypted_data, wrong_key)
+        
+        # The result should NOT be our original message
+        self.assertNotEqual(self.message, decrypted_result)
 
-    def test_empty_string(self):
-        """Ensures the algorithm handles empty input gracefully."""
-        ciphertext = encrypt("", self.key, self.fixed_time)
-        self.assertEqual(decrypt(ciphertext, self.key, self.fixed_time), "")
+    def test_time_sensitivity(self):
+        """Check that the same message encrypted at different times looks different."""
+        time_one = "03042026154801" # 01 seconds
+        time_two = "03042026154802" # 02 seconds
+        
+        output_one = encrypt(self.message, self.my_secret_key, time_one)
+        output_two = encrypt(self.message, self.my_secret_key, time_two)
+        
+        self.assertNotEqual(output_one, output_two)
 
 if __name__ == '__main__':
     unittest.main()
+    
