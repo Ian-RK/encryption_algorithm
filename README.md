@@ -27,4 +27,4 @@ The encryption process follows a unique 3-step pipeline:
 1. Open your terminal.
 2. Run the main script:
    ```bash
-   python team_hex_cipher.py
+   python encryption_algorithm.py
